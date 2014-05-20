@@ -157,14 +157,35 @@ end
 % column) vector (say (z1, z2, z3)) and returns (f(z1), f(z2), f(z3)). 
 
 function out = activation(x)
-  
-    out = 1 ./ (1 + exp(-x));
+
+    % set the mu;
+    
+    mu = 0.5;
+    
+    if x < -mu
+        out = -x - 0.5*mu;
+    elseif x > mu
+        out = x - 0.5*mu;
+    else
+        out = x.^2 / (2.0*mu);
+    end
+     
+    
 end
 
 
 function grad = activationGrad(x)
-    e_x = exp(-x);
-    grad = e_x ./ ((1 + e_x).^2); 
+
+     %set the mu;
+     mu = 0.5;
+     if  x < -mu
+         grad = -1;
+     elseif x > mu
+         grad = 1;
+     else
+         grad = x / (mu*1.0);   
+     end
+    
 end
 
 
