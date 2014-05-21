@@ -14,7 +14,6 @@ function [cost,grad] = sparseAutoencoderCost(theta, info, visibleSize, hiddenSiz
 % follows the notation convention of the lecture notes. 
 
 [W1 W2 W3 W4 b1 b2 b3 b4] = stack2param(theta, info);
-
 % Cost and gradient variables (your code needs to compute these values). 
 % Here, we initialize them to zeros. 
 cost = 0;
@@ -98,10 +97,10 @@ a5 = activation(z5);
 rho = (1. / m) * sum(a3, 2);
 sp = sparsityParam;
 sparsity_delta = -sp ./ rho + (1-sp) ./ (1-rho);
-
 delta5 = -(y - a5) .* activationGrad(z5);
 delta4 = (W4' * delta5) .* activationGrad(z4);
-delta3 = (W3' * delta4 + sparsity_delta) .* activationGrad(z3);
+delta3 = (W3' * delta4 + beta*repmat(sparsity_delta, 1, m)) ...
+    .* activationGrad(z3);
 delta2 = (W2' * delta3) .* activationGrad(z2);
 
 
@@ -129,10 +128,9 @@ b3grad = (1. / m) * deltab3;
 W4grad = (1. / m) * deltaW4 + lambda * W4;
 b4grad = (1. / m) * deltab4;
 
-
 cost = (1. / m) * sum(0.5 * sum((a5 - y).^2)) + ...
-    (lambda / 2.) * (sum(W1.^2) + sum(W2.^2) + ...
-    sum(W3.^2) + sum(W4.^2)) + ...
+    (lambda / 2.) * (sum(sum(W1.^2)) + sum(sum(W2.^2)) + ...
+    sum(sum(W3.^2)) + sum(sum(W4.^2))) + ...
     beta * sum( sp*log(sp./rho) + (1-sp)*log((1-sp)./(1-rho)));
 
 
@@ -158,14 +156,35 @@ end
 % column) vector (say (z1, z2, z3)) and returns (f(z1), f(z2), f(z3)). 
 
 function out = activation(x)
-  
-    out = 1 ./ (1 + exp(-x));
+
+    % set the mu;
+    
+    mu = 0.5;
+    
+    if x < -mu
+        out = -x - 0.5*mu;
+    elseif x > mu
+        out = x - 0.5*mu;
+    else
+        out = x.^2 / (2.0*mu);
+    end
+     
+    
 end
 
 
 function grad = activationGrad(x)
-    e_x = exp(-x);
-    grad = e_x ./ ((1 + e_x).^2); 
+
+     %set the mu;
+     mu = 0.5;
+     if  x < -mu
+         grad = -1;
+     elseif x > mu
+         grad = 1;
+     else
+         grad = x / (mu*1.0);   
+     end
+    
 end
 
 

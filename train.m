@@ -80,45 +80,45 @@ fprintf('\nProgram paused. Press enter to continue.\n');
 pause;
 
 %======================================================================
-%% STEP 3: Gradient Checking
-%
-% Hint: If you are debugging your code, performing gradient checking on smaller models 
-% and smaller training sets (e.g., using only 10 training examples and 1-2 hidden 
-% units) may speed things up.
-
-% % First, lets make sure your numerical gradient computation is correct for a
-% % simple function.  After you have implemented computeNumericalGradient.m,
-% % run the following: 
-% checkNumericalGradient();
-
-% Now we can use it to check your cost function and derivative calculations
-% for the sparse autoencoder.  
-
-test = patches(:,1:10);
-
-numgrad = computeNumericalGradient( @(x) sparseAutoencoderC(x, info, visibleSize, hiddenSize1,hiddenSize2,lambda, ...
-                                                  sparsityParam, beta, ...
-                                                  test), theta);
-
-% Use this to visually compare the gradients side by side
-disp([numgrad grad]); 
+% %% STEP 3: Gradient Checking
+% %
+% % Hint: If you are debugging your code, performing gradient checking on smaller models 
+% % and smaller training sets (e.g., using only 10 training examples and 1-2 hidden 
+% % units) may speed things up.
 % 
-% Compare numerically computed gradients with the ones obtained from backpropagation
-diff = norm(numgrad-grad)/norm(numgrad+grad);
-disp(diff); % Should be small. In our implementation, these values are
-            % usually less than 1e-9.
-
-            % When you got this working, Congratulations!!! 
-fprintf('\nProgram paused. Press enter to continue.\n');
-pause;
-
-%======================================================================
+% % % First, lets make sure your numerical gradient computation is correct for a
+% % % simple function.  After you have implemented computeNumericalGradient.m,
+% % % run the following: 
+% % checkNumericalGradient();
+% 
+% % Now we can use it to check your cost function and derivative calculations
+% % for the sparse autoencoder.  
+% 
+% test = patches(:,1:10);
+% 
+% numgrad = computeNumericalGradient( @(x) sparseAutoencoderC(x, info, visibleSize, hiddenSize1,hiddenSize2,lambda, ...
+%                                                   sparsityParam, beta, ...
+%                                                   test), theta);
+% 
+% % Use this to visually compare the gradients side by side
+% disp([numgrad grad]); 
+% % 
+% % Compare numerically computed gradients with the ones obtained from backpropagation
+% diff = norm(numgrad-grad)/norm(numgrad+grad);
+% disp(diff); % Should be small. In our implementation, these values are
+%             % usually less than 1e-9.
+% 
+%             % When you got this working, Congratulations!!! 
+% fprintf('\nProgram paused. Press enter to continue.\n');
+% pause;
+% 
+% %======================================================================
 %% STEP 4: After verifying that your implementation of
 %  sparseAutoencoderCost is correct, You can start training your sparse
 %  autoencoder with minFunc (L-BFGS).
 
 %  Randomly initialize the parameters
-theta = initializeParameters(hiddenSize, visibleSize);
+%theta = initializeParameters(hiddenSize, visibleSize);
 
 %  Use minFunc to minimize the function
 addpath minFunc/
@@ -131,18 +131,18 @@ options.maxIter = 400;	  % Maximum number of iterations of L-BFGS to run
 options.display = 'on';
 
 
-[opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
-                                   visibleSize, hiddenSize, ...
+[opttheta, cost] = minFunc( @(p) sparseAutoencoderC(p, ...
+                                   info, visibleSize, hiddenSize1,hiddenSize2, ...
                                    lambda, sparsityParam, ...
-                                   beta, patches), ...
+                                   beta, test), ...
                               theta, options);
 
 %%======================================================================
 %% STEP 5: Visualization 
-
-W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-display_network(W1', 12); 
-
-print -djpeg weights.jpg   % save the visualization to a file 
+% 
+% W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
+% display_network(W1', 12); 
+% 
+% print -djpeg weights.jpg   % save the visualization to a file 
 
 

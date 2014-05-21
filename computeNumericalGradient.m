@@ -28,7 +28,7 @@ grad = zeros(size(numgrad));
 temp1 = zeros(size(theta));
 temp2 = zeros(size(theta));
 
-for i = 1 : n
+for i = 1 : 3
 %     i
     temp1 = theta;
     temp2 = theta;
