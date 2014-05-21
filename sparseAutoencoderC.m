@@ -95,14 +95,13 @@ a5 = activation(z5);
 
 
 % %compute the sparse rho
-% rho = zeros(hiddenSize, 1);
-% rho = (1. / m) * sum(a2, 2);
-% sp = sparsityParam;
-% sparsity_delta = -sp ./ rho + (1-sp) ./ (1-rho);
+rho = (1. / m) * sum(a3, 2);
+sp = sparsityParam;
+sparsity_delta = -sp ./ rho + (1-sp) ./ (1-rho);
 
 delta5 = -(y - a5) .* activationGrad(z5);
 delta4 = (W4' * delta5) .* activationGrad(z4);
-delta3 = (W3' * delta4) .* activationGrad(z3);
+delta3 = (W3' * delta4 + sparsity_delta) .* activationGrad(z3);
 delta2 = (W2' * delta3) .* activationGrad(z2);
 
 
@@ -131,9 +130,10 @@ W4grad = (1. / m) * deltaW4 + lambda * W4;
 b4grad = (1. / m) * deltab4;
 
 
-cost = (1. / m) * sum((1. / 2) * sum((a5 - y).^2)) + ...
-    (lambda / 2.) * (sum(sum(W1.^2)) + sum(sum(W2.^2)) + ...
-    sum(sum(W3.^2)) + sum(sum(W4.^2)) );
+cost = (1. / m) * sum(0.5 * sum((a5 - y).^2)) + ...
+    (lambda / 2.) * (sum(W1.^2) + sum(W2.^2) + ...
+    sum(W3.^2) + sum(W4.^2)) + ...
+    beta * sum( sp*log(sp./rho) + (1-sp)*log((1-sp)./(1-rho)));
 
 
 % % the cost with sparse term
@@ -147,7 +147,8 @@ cost = (1. / m) * sum((1. / 2) * sum((a5 - y).^2)) + ...
 % to a vector format (suitable for minFunc).  Specifically, we will unroll
 % your gradient matrices into a vector.
 
-grad = [W1grad(:) ; W2grad(:) ; W3grad(:) ; W4grad(:) ; b1grad(:) ; b2grad(:) ; b3grad(:) ; b4grad(:)];
+grad = [W1grad(:) ; W2grad(:) ; W3grad(:) ; W4grad(:) ; b1grad(:); ...
+    b2grad(:) ; b3grad(:) ; b4grad(:)];
 
 end
 
